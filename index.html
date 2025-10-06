@@ -165,22 +165,47 @@
     function normLabel(s){ return s.replace(/[-_]/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\s+/g,' ').trim(); }
 
     function discoverParts(root){
-      PARTS=[]; legend.innerHTML='';
+      PARTS = [];
+      legend.innerHTML = '';
       const shapes = $$('path,rect,circle,ellipse,polygon,polyline', root);
-      let idx=1;
-      shapes.forEach(el=>{
-        if(!el.id) el.id='path'+(idx++);
-        const label = el.getAttribute('data-label') || normLabel(el.id);
+      let idx = 1;
+    
+      // Holt das beste Label: data-label, inkscape:label, label – oder vom nächsten Elternteil
+      const bestLabel = (el) => {
+        const pick = (n) => n?.getAttribute?.('data-label')
+                      || n?.getAttribute?.('inkscape:label')
+                      || n?.getAttribute?.('label')
+                      || null;
+        let cur = el;
+        while (cur && cur !== root) {
+          const val = pick(cur);
+          if (val) return val;
+          cur = cur.parentNode;
+        }
+        return null;
+      };
+    
+      shapes.forEach(el => {
+        if (!el.id) el.id = 'path' + (idx++);
+        const label = bestLabel(el) || normLabel(el.id);
         const startFill = getFill(el);
         setFill(el, startFill);
-        PARTS.push({id:el.id,label,def:toHex(startFill)||'#bdbdbd'});
-        const d=document.createElement('div'); d.id='legend-'+el.id; d.textContent=label+': '+(toHex(startFill)||'#bdbdbd'); legend.appendChild(d);
-        el.style.cursor='pointer'; el.setAttribute('tabindex','0');
-        el.addEventListener('click',()=>setActive(el.id));
-        el.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setActive(el.id);} });
+        PARTS.push({ id: el.id, label, def: toHex(startFill) || '#bdbdbd' });
+    
+        const d = document.createElement('div');
+        d.id = 'legend-' + el.id;
+        d.textContent = label + ': ' + (toHex(startFill) || '#bdbdbd');
+        legend.appendChild(d);
+    
+        el.style.cursor = 'pointer';
+        el.setAttribute('tabindex', '0');
+        el.addEventListener('click', () => setActive(el.id));
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive(el.id); } });
       });
-      if(PARTS.length){ setActive(PARTS[0].id); updateSummary(); }
+    
+      if (PARTS.length) { setActive(PARTS[0].id); updateSummary(); }
     }
+
 
     function setActive(id){
       PARTS.forEach(p=>document.getElementById(p.id)?.classList.remove('selected-outline'));
