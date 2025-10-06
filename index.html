@@ -39,12 +39,12 @@
     .danger{ background:#ffe7e7; border:1px solid #ffc7c7; color:#7b0000; }
     footer{ max-width:1200px; margin:0 auto 60px; padding:0 22px; color:#666; font-size:.9rem; }
 
-        /* ----- Skalierung der Figur auf Desktop ----- */
+    /* ----- Desktop: SVG auf 50% der früheren Maximalbreite ----- */
     @media (min-width: 768px) {
-      .svg#canvas {
-        transform: scale(0.5);
-        transform-origin: top center;
+      svg#canvas {
+        max-width: 300px; /* vorher 600px → jetzt 50% */
       }
+    }
       .figure-wrap {
         min-height: 270px; /* halbe Höhe, damit der Platz passt */
       }
