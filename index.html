@@ -139,16 +139,25 @@
     function applyFromQuery(){ const u=new URL(location.href); let changed=false; PARTS.forEach(p=>{ const v=u.searchParams.get(p.id); if(v){ document.getElementById(p.id)?.setAttribute('fill',v); changed=true; } }); if(changed) updateSummary(); }
 
     async function inlineSVG(svgText){
-      const parser = new DOMParser(); const doc = parser.parseFromString(svgText,'image/svg+xml');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText,'image/svg+xml');
       const srcSvg = doc.documentElement;
-      const vb = srcSvg.getAttribute('viewBox'); if(vb) canvas.setAttribute('viewBox', vb);
-      art.innerHTML='';
-      const graphics = srcSvg.querySelectorAll('path,rect,circle,ellipse,polygon,polyline,g');
-      if(graphics.length===0){ $('#msg').classList.add('danger'); $('#msg').innerHTML='⚠️ Die SVG enthält keine erkennbaren Formen.'; return; }
-      graphics.forEach(el=> art.appendChild(document.importNode(el, true)));
-      discoverParts(art); applyFromQuery();
-      $('#msg').classList.remove('danger'); $('#msg').textContent='SVG geladen. Teile anklicken und färben!';
+    
+      const vb = srcSvg.getAttribute('viewBox');
+      if (vb) canvas.setAttribute('viewBox', vb);
+    
+      // NUR die direkten Kindelemente übernehmen (keine doppelte Anhängung)
+      art.innerHTML = '';
+      Array.from(srcSvg.children).forEach(node => {
+        art.appendChild(document.importNode(node, true));
+      });
+    
+      discoverParts(art);
+      applyFromQuery();
+      $('#msg').classList.remove('danger');
+      $('#msg').textContent = 'SVG geladen. Teile anklicken und färben!';
     }
+
 
     async function loadFigure(){
       try{ const res=await fetch('figure.svg',{cache:'no-store'}); if(!res.ok) throw new Error(res.statusText); const text=await res.text(); await inlineSVG(text); }
