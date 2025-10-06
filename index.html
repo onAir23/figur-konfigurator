@@ -33,6 +33,18 @@
     .note{ background:#fff7d6; border:1px solid #f0e1a0; color:#7b5b00; padding:10px 12px; border-radius:12px; margin-bottom:12px; }
     .danger{ background:#ffe7e7; border:1px solid #ffc7c7; color:#7b0000; }
     footer{ max-width:1200px; margin:0 auto 60px; padding:0 22px; color:#666; font-size:.9rem; }
+
+        /* ----- Skalierung der Figur auf Desktop ----- */
+    @media (min-width: 768px) {
+      .figure-wrap svg#canvas {
+        transform: scale(0.5);
+        transform-origin: top center;
+      }
+      .figure-wrap {
+        min-height: 270px; /* halbe Höhe, damit der Platz passt */
+      }
+    }
+
   </style>
 </head>
 <body>
