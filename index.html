@@ -45,6 +45,18 @@
       }
     }
 
+    /* Dünner schwarzer Rahmen für alle SVG-Teile */
+    #ART path,
+    #ART rect,
+    #ART circle,
+    #ART ellipse,
+    #ART polygon,
+    #ART polyline {
+      stroke: rgba(0, 0, 0, 0.6); /* dezentes Schwarz */
+      stroke-width: 0.6px;
+      vector-effect: non-scaling-stroke; /* bleibt gleich dick beim Zoomen */
+    }
+    
   </style>
 </head>
 <body>
