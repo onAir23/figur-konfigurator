@@ -109,6 +109,29 @@
     function toHex(color){ if(!color) return null; if(color.startsWith('#')){ if(color.length===4){ const r=color[1],g=color[2],b=color[3]; return ('#'+r+r+g+g+b+b).toLowerCase(); } return color.toLowerCase(); } const m=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i); if(!m) return null; const [r,g,b]=m.slice(1,4).map(Number); return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('').toLowerCase(); }
     function normLabel(s){ return s.replace(/[-_]/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\s+/g,' ').trim(); }
 
+
+
+      function getFill(el){
+        // 1) Attribut fill?
+        const a = el.getAttribute('fill');
+        if (a && a !== 'none') return a;
+        // 2) Inline-Style / computed
+        const cs = getComputedStyle(el).fill;
+        if (cs && cs !== 'none') return cs;
+        return '#bdbdbd';
+      }
+      
+      function setFill(el, hex){
+        // Präsentationsattribut + Inline-Style setzen
+        el.setAttribute('fill', hex);
+        el.style.fill = hex;
+        // Falls im style-String bereits ein 'fill:' existiert, entfernen
+        const st = el.getAttribute('style');
+        if (st && /fill\s*:/.test(st)) {
+          el.setAttribute('style', st.replace(/fill\s*:[^;]+;?/,'').trim());
+        }
+      }
+
     function discoverParts(root){
       PARTS=[]; legend.innerHTML='';
       const shapes = $$('path,rect,circle,ellipse,polygon,polyline', root).filter(el=>!el.closest('#IGNORE'));
