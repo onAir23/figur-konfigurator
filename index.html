@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Actionfigur Farb-Konfigurator – eigene SVG einsetzen</title>
+  <title>Actionfigur Farb‑Konfigurator (lädt figure.svg)</title>
   <style>
     :root { --space: 14px; --radius: 14px; }
     * { box-sizing: border-box; }
@@ -13,8 +13,8 @@
     header p{ margin:0; color:#555; font-size:.95rem;}
     main{ max-width:1200px; margin:0 auto; padding:22px; display:grid; grid-template-columns:1.3fr .7fr; gap:22px; }
     .card{ background:#fff; border:1px solid #eee; border-radius:var(--radius); padding:var(--space); box-shadow:0 1px 2px rgba(0,0,0,.03); }
-    .figure-wrap{ display:flex; align-items:center; justify-content:center; height:640px; }
-    svg{ width:100%; max-width:560px; height:auto; }
+    .figure-wrap{ display:flex; align-items:center; justify-content:center; min-height:540px; }
+    svg#canvas{ width:100%; max-width:560px; height:auto; }
     .tools h2,.summary h2{ margin-top:0; font-size:1.05rem; }
     .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     .color-swatch{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(0,0,0,.1); cursor:pointer; }
@@ -24,7 +24,7 @@
     button:active{ transform:translateY(1px); }
     input[type="color"]{ width:48px; height:36px; border:none; background:none; padding:0; cursor:pointer; }
     .badge{ display:inline-block; padding:4px 8px; border-radius:999px; background:#f2f2f2; border:1px solid #e9e9e9; font-size:12px; color:#444; }
-    .selected-outline{ filter: drop-shadow(0 0 6px rgba(0,120,255,.65)); }
+    .selected-outline{ filter: drop-shadow(0 0 6px rgba(0,120,255,.65)); outline: 2px solid rgba(0,120,255,.35); }
     .toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:10px 14px; border-radius:10px; opacity:0; pointer-events:none; transition:opacity .2s ease; font-size:.95rem; }
     .toast.show{ opacity:1; }
     textarea{ width:100%; min-height:160px; resize:vertical; padding:10px; border-radius:12px; border:1px solid #e1e1e1; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
@@ -34,42 +34,27 @@
     .small{ font-size:.85rem; color:#666; }
     .kbd{ font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; border:1px solid #e1e1e1; border-bottom-width:2px; background:#fafafa; padding:0 6px; border-radius:6px; }
     .note{ background:#fff7d6; border:1px solid #f0e1a0; color:#7b5b00; padding:10px 12px; border-radius:12px; margin-bottom:12px; }
+    .danger{ background:#ffe7e7; border:1px solid #ffc7c7; color:#7b0000; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Actionfigur Farb-Konfigurator – mit deinem SVG</h1>
-    <p>Klicke ein Teil an und wähle eine Farbe. Nutze „Farben kopieren“, um die Auswahl im Etsy-Personalisierungsfeld einzufügen.</p>
+    <h1>Actionfigur Farb‑Konfigurator</h1>
+    <p>Diese Seite lädt <strong>figure.svg</strong> automatisch und macht alle Teile klick‑ & färbbar. Danach: „Farben kopieren“ für Etsy.</p>
   </header>
 
   <main>
     <section class="card">
-      <div class="note">
-        <strong>So setzt du DEIN SVG ein:</strong>
-        Öffne diese Datei im Editor und ersetze den Bereich <code>&lt;!-- PASTE YOUR SVG PATHS HERE --&gt;</code> durch die <em>Pfad-Elemente</em> deiner Figur (mehrere <code>&lt;path&gt;</code>/<code>&lt;rect&gt;</code>/<code>&lt;polygon&gt;</code> …).<br>
-        <ul>
-          <li>Wenn deine Teile bereits <code>id</code> oder <code>data-label</code> besitzen, übernehmen wir sie.</li>
-          <li>Wenn nicht, vergeben wir automatisch Namen (<code>teil-1</code>, <code>teil-2</code>, …).</li>
-          <li>Wichtig: Damit einzelne Teile einfärbbar sind, müssen sie als <em>separate</em> Pfade/Shapes in der SVG vorliegen (nicht eine einzige Silhouette).</li>
-        </ul>
-      </div>
-
+      <div id="msg" class="note">Lade deine <code>figure.svg</code> (mit vielen einzelnen Pfaden) ins Repo. Falls das Laden fehlschlägt, kannst du unten eine Datei manuell auswählen.</div>
       <div class="figure-wrap">
-        <!-- Artboard: Wir importieren deine Shapes in diese Gruppe -->
-        <svg id="figur" viewBox="0 0 300 900" xmlns="http://www.w3.org/2000/svg" aria-labelledby="title desc" role="img">
-          <title id="title">Konfigurierbare Actionfigur – eigene SVG</title>
-          <desc id="desc">Klicke die Teile der SVG an und ändere die Farbe.</desc>
-
-          <!-- Optionaler Bodenschatten -->
+        <svg id="canvas" viewBox="0 0 300 900" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="150" cy="880" rx="90" ry="14" fill="#e9e9e9"></ellipse>
-
-          <!-- ===== Deine SVG-Teile kommen HIER hinein ===== -->
-          <g id="ART">
-            <!-- PASTE YOUR SVG PATHS HERE -->
-            <!-- Beispielstück (löschen): <path id="beispiel" d="M140 60 h20 v30 h-20z" fill="#bdbdbd"/> -->
-          </g>
-          <!-- =============================================== -->
+          <g id="ART"></g>
         </svg>
+      </div>
+      <div class="row">
+        <input type="file" id="file" accept=".svg" />
+        <button id="reload">figure.svg neu laden</button>
       </div>
       <p class="hint">Tipp: <span class="kbd">Tab</span> und <span class="kbd">Enter</span> helfen bei der Auswahl.</p>
     </section>
@@ -112,90 +97,75 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const $ = (sel, ctx=document) => ctx.querySelector(sel);
-    const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-    const toast = (msg) => { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 1400); };
+    const $ = (s, c=document)=>c.querySelector(s); const $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
+    const toast = (m)=>{ const el=$('#toast'); el.textContent=m; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 1400); };
+    const picker=$('#picker'), summary=$('#summary'), activePartBadge=$('#activePartBadge'), legend=$('#legend');
+    const swatches=$('#swatches');
+    const PALETTE=['#ffffff','#111111','#222222','#e74c3c','#d35400','#f39c12','#f1c40f','#2ecc71','#27ae60','#1abc9c','#16a085','#3498db','#2980b9','#9b59b6','#8e44ad','#7f8c8d','#95a5a6','#bdc3c7'];
+    PALETTE.forEach(hex=>{ const b=document.createElement('button'); b.className='color-swatch'; b.title=hex; b.style.background=hex; b.addEventListener('click',()=>applyColor(hex)); swatches.appendChild(b); });
 
-    const PALETTE = ['#ffffff','#111111','#222222','#e74c3c','#d35400','#f39c12','#f1c40f','#2ecc71','#27ae60','#1abc9c','#16a085','#3498db','#2980b9','#9b59b6','#8e44ad','#7f8c8d','#95a5a6','#bdc3c7'];
+    const canvas=$('#canvas'); const art=$('#ART'); let PARTS=[]; let activeId=null;
 
-    const swatches = $('#swatches');
-    PALETTE.forEach(hex => { const b=document.createElement('button'); b.className='color-swatch'; b.title=hex; b.style.background=hex; b.addEventListener('click',()=>applyColor(hex)); swatches.appendChild(b); });
-
-    const picker = $('#picker'); const summary = $('#summary'); const activePartBadge = $('#activePartBadge');
-
-    // Auto-discover parts from #ART
-    const art = $('#ART');
-    let idx = 1; const PARTS = [];
-
-    function ensureId(el){ if(el.id) return el.id; const id='teil-'+(idx++); el.id=id; return id; }
+    function toHex(color){ if(!color) return null; if(color.startsWith('#')){ if(color.length===4){ const r=color[1],g=color[2],b=color[3]; return ('#'+r+r+g+g+b+b).toLowerCase(); } return color.toLowerCase(); } const m=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i); if(!m) return null; const [r,g,b]=m.slice(1,4).map(Number); return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('').toLowerCase(); }
+    function normLabel(s){ return s.replace(/[-_]/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\s+/g,' ').trim(); }
 
     function discoverParts(root){
-      const shapes = $$('path,rect,circle,ellipse,polygon,polyline,g', root);
-      shapes.forEach(el => {
-        const hasChildShapes = el.tagName.toLowerCase()==='g' && $$('path,rect,circle,ellipse,polygon,polyline', el).length>0;
-        if(hasChildShapes) return;
-        const id = ensureId(el);
-        const label = el.getAttribute('data-label') || id;
+      PARTS=[]; legend.innerHTML='';
+      const shapes = $$('path,rect,circle,ellipse,polygon,polyline', root).filter(el=>!el.closest('#IGNORE'));
+      let idx=1;
+      shapes.forEach(el=>{
+        if(!el.id) el.id='teil-'+(idx++);
         if(!el.getAttribute('fill')) el.setAttribute('fill','#bdbdbd');
-        PARTS.push({ id, label, def: toHex(el.getAttribute('fill')) || '#bdbdbd' });
+        const label = el.getAttribute('data-label') || normLabel(el.id);
+        PARTS.push({id:el.id,label,def:toHex(el.getAttribute('fill'))||'#bdbdbd'});
+        const d=document.createElement('div'); d.id='legend-'+el.id; d.textContent=label+': '+(toHex(el.getAttribute('fill'))||'#bdbdbd'); legend.appendChild(d);
+        el.style.cursor='pointer'; el.setAttribute('tabindex','0');
+        el.addEventListener('click',()=>setActive(el.id));
+        el.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setActive(el.id);} });
       });
-    }
-    discoverParts(art);
-
-    if(PARTS.length===0){
-      const msg=document.createElement('div'); msg.className='note';
-      msg.innerHTML='⚠️ In <code>#ART</code> wurden keine einzelnen Formen gefunden. Bitte füge deine SVG-Teile (mehrere <code>&lt;path&gt;</code>/<code>&lt;rect&gt;</code> …) als separate Elemente ein.';
-      document.querySelector('main').prepend(msg);
+      if(PARTS.length){ setActive(PARTS[0].id); updateSummary(); }
     }
 
-    const legend = $('#legend');
-    PARTS.forEach(p => { const d=document.createElement('div'); d.id='legend-'+p.id; d.textContent=p.label+': '+p.def; legend.appendChild(d); });
+    function setActive(id){ PARTS.forEach(p=>document.getElementById(p.id)?.classList.remove('selected-outline')); const el=document.getElementById(id); if(!el) return; activeId=id; el.classList.add('selected-outline'); picker.value=toHex(el.getAttribute('fill'))||'#ffffff'; activePartBadge.textContent='Aktiv: '+(PARTS.find(p=>p.id===id)?.label||id); }
 
-    let activeId = PARTS[0]?.id || null;
-    PARTS.forEach(p => {
-      const el=document.getElementById(p.id);
-      el.style.cursor='pointer'; el.setAttribute('tabindex','0');
-      el.addEventListener('click',()=>setActive(p.id));
-      el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setActive(p.id);} });
-    });
-
-    function setActive(id){
-      PARTS.forEach(p => document.getElementById(p.id)?.classList.remove('selected-outline'));
-      const el=document.getElementById(id); if(!el) return;
-      activeId=id; el.classList.add('selected-outline');
-      const current=getFill(el); picker.value=toHex(current)||'#ffffff';
-      const lbl = PARTS.find(p=>p.id===id)?.label || id;
-      activePartBadge.textContent='Aktiv: '+lbl;
-    }
-    function getFill(el){ return el.getAttribute('fill') || '#ffffff'; }
     function applyColor(hex){ if(!activeId){ toast('Bitte zuerst ein Teil anklicken.'); return; } const el=document.getElementById(activeId); el.setAttribute('fill',hex); picker.value=hex; updateSummary(); }
     picker.addEventListener('input', e=>applyColor(e.target.value));
 
-    document.getElementById('resetPart').addEventListener('click',()=>{ if(!activeId) return; const part=PARTS.find(p=>p.id===activeId); document.getElementById(activeId)?.setAttribute('fill',part.def); updateSummary(); });
-    document.getElementById('resetAll').addEventListener('click',()=>{ PARTS.forEach(p=>document.getElementById(p.id)?.setAttribute('fill',p.def)); updateSummary(); toast('Alle Farben zurückgesetzt.'); });
+    $('#resetPart').addEventListener('click',()=>{ if(!activeId) return; const p=PARTS.find(p=>p.id===activeId); document.getElementById(activeId)?.setAttribute('fill',p.def); updateSummary(); });
+    $('#resetAll').addEventListener('click',()=>{ PARTS.forEach(p=>document.getElementById(p.id)?.setAttribute('fill',p.def)); updateSummary(); toast('Alle Farben zurückgesetzt.'); });
 
-    function updateSummary(){
-      const lines = PARTS.map(p=>{ const hex=toHex(getFill(document.getElementById(p.id))); $('#legend-'+p.id).textContent=(p.label||p.id)+': '+hex; return `${p.label||p.id}: ${hex}`; });
-      summary.value = lines.join('\n'); history.replaceState(null,'',buildQueryFromCurrent());
-    }
-    function toHex(color){ if(!color) return null; if(color.startsWith('#')){ if(color.length===4){ const r=color[1],g=color[2],b=color[3]; return ('#'+r+r+g+g+b+b).toLowerCase(); } return color.toLowerCase(); } const m=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i); if(!m) return null; const [r,g,b]=m.slice(1,4).map(n=>Number(n)); return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('').toLowerCase(); }
-    function buildQueryFromCurrent(){ const params=new URLSearchParams(); PARTS.forEach(p=>params.set(p.id,toHex(getFill(document.getElementById(p.id))))); return location.pathname + '?' + params.toString(); }
+    function updateSummary(){ const lines=PARTS.map(p=>{ const hex=toHex(document.getElementById(p.id)?.getAttribute('fill')); $('#legend-'+p.id).textContent=p.label+': '+hex; return `${p.label}: ${hex}`; }); summary.value=lines.join('\n'); history.replaceState(null,'',buildQueryFromCurrent()); }
+    function buildQueryFromCurrent(){ const params=new URLSearchParams(); PARTS.forEach(p=>params.set(p.id,toHex(document.getElementById(p.id)?.getAttribute('fill')))); return location.pathname+'?'+params.toString(); }
     function applyFromQuery(){ const u=new URL(location.href); let changed=false; PARTS.forEach(p=>{ const v=u.searchParams.get(p.id); if(v){ document.getElementById(p.id)?.setAttribute('fill',v); changed=true; } }); if(changed) updateSummary(); }
 
-    async function copyText(text){ try{ await navigator.clipboard.writeText(text); toast('In die Zwischenablage kopiert.'); } catch{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('In die Zwischenablage kopiert.'); } }
-    document.getElementById('copyText').addEventListener('click',()=>copyText(summary.value));
-    document.getElementById('copyLink').addEventListener('click',()=>copyText(location.href));
+    async function inlineSVG(svgText){
+      const parser = new DOMParser(); const doc = parser.parseFromString(svgText,'image/svg+xml');
+      const srcSvg = doc.documentElement;
+      const vb = srcSvg.getAttribute('viewBox'); if(vb) canvas.setAttribute('viewBox', vb);
+      art.innerHTML='';
+      const graphics = srcSvg.querySelectorAll('path,rect,circle,ellipse,polygon,polyline,g');
+      if(graphics.length===0){ $('#msg').classList.add('danger'); $('#msg').innerHTML='⚠️ Die SVG enthält keine erkennbaren Formen.'; return; }
+      graphics.forEach(el=> art.appendChild(document.importNode(el, true)));
+      discoverParts(art); applyFromQuery();
+      $('#msg').classList.remove('danger'); $('#msg').textContent='SVG geladen. Teile anklicken und färben!';
+    }
 
-    document.getElementById('downloadPng').addEventListener('click',()=>{
-      const svgEl=document.getElementById('figur'); const serializer=new XMLSerializer(); let source=serializer.serializeToString(svgEl);
+    async function loadFigure(){
+      try{ const res=await fetch('figure.svg',{cache:'no-store'}); if(!res.ok) throw new Error(res.statusText); const text=await res.text(); await inlineSVG(text); }
+      catch(e){ $('#msg').classList.add('danger'); $('#msg').innerHTML='⚠️ Konnte <code>figure.svg</code> nicht laden. Lade die Datei hier manuell hoch oder füge sie ins Repo (Root) ein.'; }
+    }
+    $('#reload').addEventListener('click', loadFigure);
+    $('#file').addEventListener('change', async (ev)=>{ const file=ev.target.files?.[0]; if(!file) return; const text=await file.text(); await inlineSVG(text); });
+
+    $('#downloadPng').addEventListener('click',()=>{
+      const serializer=new XMLSerializer(); let source=serializer.serializeToString(canvas);
       if(!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)){ source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"'); }
       const blob=new Blob([source],{type:'image/svg+xml;charset=utf-8'}); const url=URL.createObjectURL(blob); const img=new Image();
-      img.onload=()=>{ const canvas=document.createElement('canvas'); const scale=2; canvas.width=img.width*scale; canvas.height=img.height*scale; const ctx=canvas.getContext('2d'); ctx.setTransform(scale,0,0,scale,0,0); ctx.drawImage(img,0,0); URL.revokeObjectURL(url); const a=document.createElement('a'); a.download='figur-konfiguration.png'; a.href=canvas.toDataURL('image/png'); a.click(); };
+      img.onload=()=>{ const cav=document.createElement('canvas'); const scale=2; cav.width=img.width*scale; cav.height=img.height*scale; const ctx=cav.getContext('2d'); ctx.setTransform(scale,0,0,scale,0,0); ctx.drawImage(img,0,0); URL.revokeObjectURL(url); const a=document.createElement('a'); a.download='figur-konfiguration.png'; a.href=cav.toDataURL('image/png'); a.click(); };
       img.src=url;
     });
 
-    if(PARTS.length){ setActive(PARTS[0].id); }
-    updateSummary(); applyFromQuery();
+    loadFigure();
   </script>
 </body>
 </html>
