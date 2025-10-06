@@ -42,7 +42,8 @@
     /* ----- Desktop: SVG auf 50% der früheren Maximalbreite ----- */
     @media (min-width: 768px) {
       svg#canvas {
-        max-width: 300px; /* vorher 600px → jetzt 50% */
+        width: 100%;
+        max-width: clamp(180px, 60vw, 300px);
       }
     }
       .figure-wrap {
