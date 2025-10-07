@@ -209,12 +209,26 @@
     });
 
     function updateSummary(){
+      const colorNames = {
+        "#111111": "Schwarz",
+        "#000000": "Schwarz",
+        "#ffffff": "Weiß",
+        "#888888": "Grau",
+        "#1abc9c": "Mintgrün",
+        "#f1c40f": "Zitronengelb",
+        "#f39c12": "Sonnenorange",
+        "#e74c3c": "Rot",
+        "#3498db": "Blau"
+      };
+    
       const lines = PARTS.map(p => {
         const hex = toHex(getFill(document.getElementById(p.id)));
-        return `${p.label}: ${hex}`;
+        const name = colorNames[hex] || hex; // Fallback: Hex anzeigen, falls unbekannt
+        return `${p.label}: ${name}`;
       });
-      summary.value = lines.join('\n');
+      summary.value = lines.join("\\n");
     }
+
 
     function applyFromQuery(){
       const u=new URL(location.href); let changed=false;
