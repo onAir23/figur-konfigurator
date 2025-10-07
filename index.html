@@ -245,25 +245,58 @@
       }
     }
 
-    document.getElementById('downloadPng').addEventListener('click',()=>{
-      const serializer=new XMLSerializer(); let source=serializer.serializeToString(canvas);
-      if(!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)){ source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"'); }
-      const blob=new Blob([source],{type:'image/svg+xml;charset=utf-8'});
-      const url=URL.createObjectURL(blob);
-      const img=new Image();
-      img.onload=()=>{
-        const cav=document.createElement('canvas'); const scale=2;
-        cav.width=img.width*scale; cav.height=img.height*scale;
-        const ctx=cav.getContext('2d');
-        ctx.setTransform(scale,0,0,scale,0,0);
-        ctx.drawImage(img,0,0);
+    document.getElementById('downloadPng').addEventListener('click', () => {
+      // 1) Maße aus viewBox holen (volle Zeichenfläche, nicht die CSS-Größe)
+      const vb = canvas.viewBox.baseVal;
+      const w = (vb && vb.width)  ? vb.width  : Math.ceil(canvas.getBoundingClientRect().width);
+      const h = (vb && vb.height) ? vb.height : Math.ceil(canvas.getBoundingClientRect().height);
+    
+      // 2) Eigenständiges SVG bauen (mit inline-Styles für die Konturen)
+      const ns = 'http://www.w3.org/2000/svg';
+      const exportSvg = document.createElementNS(ns, 'svg');
+      exportSvg.setAttribute('xmlns', ns);
+      exportSvg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${vb.height}`);
+      exportSvg.setAttribute('width',  w);
+      exportSvg.setAttribute('height', h);
+    
+      // wichtige Styles inline einbetten, damit sie beim Rendern erhalten bleiben
+      const style = document.createElementNS(ns, 'style');
+      style.textContent = `
+        #ART path, #ART rect, #ART circle, #ART ellipse, #ART polygon, #ART polyline {
+          stroke: rgba(0,0,0,0.6);
+          stroke-width: 0.6px;
+          vector-effect: non-scaling-stroke;
+        }
+      `;
+      exportSvg.appendChild(style);
+    
+      // 3) Inhalte übernehmen (Ellipse + ART-Gruppe klonen)
+      exportSvg.appendChild(canvas.querySelector('ellipse').cloneNode(true));
+      const artClone = canvas.querySelector('#ART').cloneNode(true);
+      exportSvg.appendChild(artClone);
+    
+      // 4) Serialisieren → Image → Canvas (mit High-DPI-Scale)
+      const source = new XMLSerializer().serializeToString(exportSvg);
+      const blob   = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+      const url    = URL.createObjectURL(blob);
+      const img    = new Image();
+    
+      img.onload = () => {
+        const scale = 2; // bessere Schärfe (kannst du anpassen)
+        const cav = document.createElement('canvas');
+        cav.width  = Math.ceil(w * scale);
+        cav.height = Math.ceil(h * scale);
+        const ctx = cav.getContext('2d');
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        ctx.drawImage(img, 0, 0);
         URL.revokeObjectURL(url);
-        const a=document.createElement('a');
-        a.download='figur-konfiguration.png';
-        a.href=cav.toDataURL('image/png');
+    
+        const a = document.createElement('a');
+        a.download = 'figur-konfiguration.png';
+        a.href = cav.toDataURL('image/png');
         a.click();
       };
-      img.src=url;
+      img.src = url;
     });
 
     loadFigure();
