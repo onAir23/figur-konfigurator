@@ -5,138 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Actionfigur Farb‑Konfigurator</title>
   <style>
-    :root {
-      --space: 14px;
-      --radius: 14px;
-    }
-    * {
-      box-sizing: border-box;
-    }
+    :root { --space: 14px; --radius: 14px; }
+    * { box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
-        Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
-      margin: 0;
-      color: #111;
-      background: #fafafa;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      margin: 0; color: #111; background: #fafafa;
     }
-    header {
-      padding: 20px;
-      background: #fff;
-      border-bottom: 1px solid #eee;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
-    header h1 {
-      margin: 0 0 6px 0;
-      font-size: 1.35rem;
-    }
-    header p {
-      margin: 0;
-      color: #555;
-      font-size: 0.95rem;
-    }
-    main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 22px;
-      display: grid;
-      grid-template-columns: 1.3fr 0.7fr;
-      gap: 22px;
-    }
-    .card {
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: var(--radius);
-      padding: var(--space);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-    }
+
+    /* Strukturierter Hintergrund nur hinter der Figur */
     .figure-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 540px;
-      background: radial-gradient(#ddd 1px, transparent 1px), linear-gradient(180deg, #f5f5f5 0%, #eaeaea 100%);
-      background-size: 20px 20px, auto;
+      background:
+        radial-gradient(#e3e3e3 1px, transparent 1px),
+        linear-gradient(180deg, #f7f7f7 0%, #eeeeee 100%);
+      background-size: 24px 24px, auto;
       border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 12px rgba(0,0,0,.06);
       padding: 20px;
+      display:flex; align-items:center; justify-content:center; min-height:540px;
     }
-    svg#canvas {
-      width: 100%;
-      max-width: 600px;
-      height: auto;
-    }
+
+    header { padding:20px; background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:5; }
+    header h1{ margin:0 0 6px 0; font-size:1.35rem;}
+    header p{ margin:0; color:#555; font-size:.95rem;}
+
+    main{ max-width:1200px; margin:0 auto; padding:22px; display:grid; grid-template-columns:1.3fr .7fr; gap:22px; }
+    .card{ background:#fff; border:1px solid #eee; border-radius:var(--radius); padding:var(--space); box-shadow:0 1px 2px rgba(0,0,0,.03); }
+
+    svg#canvas{ width:100%; max-width:600px; height:auto; }
+
+    .tools h2{ margin-top:0; font-size:1.05rem; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .color-swatch{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(0,0,0,.1); cursor:pointer; }
+    .section{ margin-bottom:16px; }
+    button{ border:1px solid #ddd; background:#fff; border-radius:12px; padding:10px 12px; cursor:pointer; font-weight:600; transition:transform .02s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease; }
+    button:hover{ border-color:#ccc; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+    button:active{ transform:translateY(1px); }
+    input[type="color"]{ width:48px; height:36px; border:none; background:none; padding:0; cursor:pointer; }
+    .badge{ display:inline-block; padding:4px 8px; border-radius:999px; background:#f2f2f2; border:1px solid #e9e9e9; font-size:12px; color:#444; }
+    .selected-outline{ filter: drop-shadow(0 0 6px rgba(0,120,255,.65)); outline: 2px solid rgba(0,120,255,.35); }
+    textarea{ width:100%; min-height:160px; resize:vertical; padding:10px; border-radius:12px; border:1px solid #e1e1e1; font-family: ui-monospace,SFMono-Regular,Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace; }
+    footer{ max-width:1200px; margin:0 auto 60px; padding:0 22px; color:#666; font-size:.9rem; }
+
+    /* Desktop: SVG kleiner (≈50%) */
     @media (min-width: 768px) {
-      svg#canvas {
-        max-width: 300px; /* halbiert auf Desktop */
-      }
+      svg#canvas { width: 100%; max-width: 300px; }
+      .figure-wrap { min-height: 270px; }
     }
-    .tools h2,
-    .summary h2 {
-      margin-top: 0;
-      font-size: 1.05rem;
+    /* Mobile: ebenfalls etwas kleiner */
+    @media (max-width: 767px) {
+      svg#canvas { max-width: 220px; }
     }
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .color-swatch {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #f2f2f2;
-      border: 1px solid #e9e9e9;
-      font-size: 12px;
-      color: #444;
-    }
-    .selected-outline {
-      filter: drop-shadow(0 0 6px rgba(0, 120, 255, 0.65));
-      outline: 2px solid rgba(0, 120, 255, 0.35);
-    }
-    .toast {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #111;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 10px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-      font-size: 0.95rem;
-      z-index: 10;
-    }
-    .toast.show {
-      opacity: 1;
-    }
-    textarea {
-      width: 100%;
-      min-height: 160px;
-      resize: vertical;
-      padding: 10px;
-      border-radius: 12px;
-      border: 1px solid #e1e1e1;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    }
+
     /* Dünner schwarzer Rahmen für alle SVG-Teile */
-    #ART path,
-    #ART rect,
-    #ART circle,
-    #ART ellipse,
-    #ART polygon,
-    #ART polyline {
+    #ART path, #ART rect, #ART circle, #ART ellipse, #ART polygon, #ART polyline {
       stroke: rgba(0, 0, 0, 0.6);
       stroke-width: 0.6px;
       vector-effect: non-scaling-stroke;
@@ -146,382 +67,298 @@
 <body>
   <header>
     <h1>Actionfigur Farb‑Konfigurator</h1>
-    <p>1) Teil anklicken 2) Farbe wählen 3) Farben in Etsy einfügen</p>
+    <p>1) Teil anklicken • 2) Farbe wählen • 3) „Deine Auswahl“ in Etsy einfügen</p>
   </header>
+
   <main>
     <section class="card">
-      <div id="msg" class="note" style="display:none"></div>
       <div class="figure-wrap">
-        <svg id="canvas" viewBox="0 0 300 900" xmlns="http://www.w3.org/2000/svg">
+        <svg id="canvas" viewBox="0 0 300 900" xmlns="http://www.w3.org/2000/svg" aria-label="Figur">
           <ellipse cx="150" cy="880" rx="90" ry="14" fill="#e9e9e9"></ellipse>
           <g id="ART"></g>
         </svg>
       </div>
     </section>
+
     <section class="tools card">
       <h2>Farben wählen</h2>
-      <div class="row" style="align-items:center; margin-bottom: 14px;">
-        <span class="badge" id="activePartBadge">Aktiv: –</span>
-        <span id="activeColor" class="color-swatch" style="width:32px;height:32px;"></span>
-        <button id="resetPart">Aktives Teil zurücksetzen</button>
+      <div class="section">
+        <div class="row" style="align-items:center;">
+          <span class="badge" id="activePartBadge">Aktiv: –</span>
+          <input type="color" id="picker" aria-label="Farbe wählen">
+          <button id="resetPart">Aktives Teil zurücksetzen</button>
+        </div>
       </div>
+
       <div class="section">
         <div class="row" id="swatches"></div>
       </div>
+
       <div class="section">
         <div class="row">
           <button id="downloadPng">PNG herunterladen</button>
         </div>
       </div>
+
       <div class="section summary">
         <h2>Deine Auswahl</h2>
         <textarea id="summary" readonly></textarea>
       </div>
     </section>
   </main>
-  <footer style="max-width:1200px;margin:0 auto 60px;padding:0 22px;color:#666;font-size:.9rem;">
+
+  <footer>
     <p>© 2025 DEIN SHOPNAME – Kauf & Zahlung erfolgen auf Etsy.</p>
   </footer>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    // Helper functions for DOM
-    const $ = (s, c = document) => c.querySelector(s);
-    const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
-    const toast = (m) => {
-      const el = $('#toast');
-      el.textContent = m;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 1600);
-    };
+    const $ = (s, c=document)=>c.querySelector(s);
+    const $$ = (s, c=document)=>Array.from(c.querySelectorAll(s));
 
-    // Colour palettes
-    const JOINT_PALETTE = ['#111111', '#ffffff', '#888888', '#e74c3c', '#3498db'];
-    const NORMAL_PALETTE = ['#111111', '#ffffff', '#888888', '#1abc9c', '#f1c40f', '#f39c12', '#e74c3c', '#3498db'];
-    const COLOR_NAMES = {
-      '#111111': 'Schwarz',
-      '#000000': 'Schwarz',
-      '#ffffff': 'Weiß',
-      '#888888': 'Grau',
-      '#1abc9c': 'Mintgrün',
-      '#f1c40f': 'Zitronengelb',
-      '#f39c12': 'Sonnenorange',
-      '#e74c3c': 'Rot',
-      '#3498db': 'Blau',
-    };
+    const picker=$('#picker'), summary=$('#summary'), activePartBadge=$('#activePartBadge');
+    const swatches=$('#swatches');
+    const canvas=$('#canvas'); const art=$('#ART'); let PARTS=[]; let activeId=null;
 
-    const canvas = $('#canvas');
-    const art = $('#ART');
-    const swatches = $('#swatches');
-    const summary = $('#summary');
-    const activePartBadge = $('#activePartBadge');
-    const activeColorSwatch = $('#activeColor');
+    // Paletten
+    const PALETTE_JOINTS = ['#111111','#ffffff','#888888','#e74c3c','#3498db']; // Gelenke
+    const PALETTE_BODY   = ['#111111','#ffffff','#888888','#1abc9c','#f1c40f','#f39c12','#e74c3c','#3498db']; // übrige Teile
 
-    let PARTS = [];
-    let activeId = null;
-
-    // Convert CSS color to hex (always lowercase)
-    function toHex(color) {
-      if (!color) return null;
-      if (color.startsWith('#')) {
-        if (color.length === 4) {
-          const r = color[1], g = color[2], b = color[3];
-          return ('#' + r + r + g + g + b + b).toLowerCase();
-        }
-        return color.toLowerCase();
-      }
-      const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-      if (!m) return null;
-      const [r, g, b] = m.slice(1, 4).map(Number);
-      return (
-        '#' +
-        [r, g, b]
-          .map((v) => v.toString(16).padStart(2, '0'))
-          .join('')
-          .toLowerCase()
-      );
-    }
-
-    // Get current fill colour of an element
-    function getFill(el) {
-      if (!el) return '#bdbdbd';
-      const a = el.getAttribute('fill');
-      if (a && a !== 'none') return a;
-      const cs = getComputedStyle(el).fill;
-      if (cs && cs !== 'none') return cs;
-      return '#bdbdbd';
-    }
-    // Set fill colour on an element
-    function setFill(el, hex) {
-      if (!el) return;
-      el.setAttribute('fill', hex);
-      el.style.fill = hex;
-      const st = el.getAttribute('style');
-      if (st && /fill\s*:/i.test(st)) {
-        el.setAttribute('style', st.replace(/fill\s*:[^;]+;?/i, '').trim());
-      }
-    }
-
-    // Normalize label (from id)
-    function normLabel(s) {
-      return s
-        .replace(/[-_]/g, ' ')
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
-
-    // Build parts list from groups & shapes
-    function discoverParts(root) {
-      PARTS = [];
-      // Temporary map of group id -> part
-      const map = new Map();
-      let autoIndex = 1;
-      // For each shape element inside root
-      root.querySelectorAll('path,rect,circle,ellipse,polygon,polyline').forEach((shape) => {
-        // Find the nearest group ancestor that is a direct child of root
-        let g = shape.closest('g');
-        let candidate = null;
-        while (g && g !== root) {
-          if (g.parentElement === root) {
-            candidate = g;
-            break;
-          }
-          g = g.parentElement.closest('g');
-        }
-        if (!candidate) {
-          // shape not in a group directly under root; treat shape itself as a group
-          candidate = shape;
-        }
-        let id = candidate.id;
-        if (!id) {
-          id = 'part' + autoIndex++;
-          candidate.id = id;
-        }
-        if (!map.has(id)) {
-          // Determine label from inkscape:label or data-label or id
-          const labelAttr = candidate.getAttribute('inkscape:label') || candidate.getAttribute('data-label') || candidate.getAttribute('label');
-          const label = labelAttr ? labelAttr : normLabel(id);
-          map.set(id, {
-            id: id,
-            label: label,
-            shapes: [],
-            def: null,
-          });
-        }
-        map.get(id).shapes.push(shape);
-      });
-      // Now finalize parts list
-      map.forEach((part) => {
-        // Determine default colour from first shape
-        const firstShape = part.shapes[0];
-        const col = toHex(getFill(firstShape)) || '#bdbdbd';
-        part.def = col;
-        PARTS.push(part);
-        // Set initial fill (ensures consistent state)
-        part.shapes.forEach((sh) => {
-          setFill(sh, col);
-          sh.style.cursor = 'pointer';
-          sh.setAttribute('tabindex', '0');
-          sh.addEventListener('click', () => setActive(part.id));
-          sh.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              setActive(part.id);
-            }
-          });
-        });
-      });
-      if (PARTS.length) {
-        setActive(PARTS[0].id);
-        updateSummary();
-      }
-    }
-
-    // Highlight active part and update palette
-    function setActive(id) {
-      // Remove outline from previous selection
-      PARTS.forEach((p) => {
-        p.shapes.forEach((sh) => sh.classList.remove('selected-outline'));
-      });
-      const part = PARTS.find((p) => p.id === id);
-      if (!part) return;
-      activeId = id;
-      part.shapes.forEach((sh) => sh.classList.add('selected-outline'));
-      // Show current colour in swatch
-      const currentCol = toHex(getFill(part.shapes[0])) || '#ffffff';
-      activeColorSwatch.style.background = currentCol;
-      // Update badge
-      activePartBadge.textContent = 'Aktiv: ' + part.label;
-      // Determine palette based on label
-      const isJoint = part.label.toLowerCase().startsWith('gelenk');
-      updatePalette(isJoint);
-    }
-
-    // Build the colour swatches depending on joint or normal
-    function updatePalette(isJoint) {
-      swatches.innerHTML = '';
-      const palette = isJoint ? JOINT_PALETTE : NORMAL_PALETTE;
-      palette.forEach((hex) => {
-        const b = document.createElement('button');
-        b.className = 'color-swatch';
-        b.title = hex;
-        b.style.background = hex;
-        b.addEventListener('click', () => applyColor(hex));
+    function renderPalette(isJoint){
+      swatches.innerHTML='';
+      (isJoint?PALETTE_JOINTS:PALETTE_BODY).forEach(hex=>{
+        const b=document.createElement('button');
+        b.className='color-swatch'; b.title=hex; b.style.background=hex;
+        b.addEventListener('click',()=>applyColor(hex));
         swatches.appendChild(b);
       });
     }
 
-    // Apply a colour to the active part
-    function applyColor(hex) {
-      if (!activeId) {
-        toast('Bitte zuerst ein Teil anklicken.');
-        return;
+    function getFill(el){
+      const a=el.getAttribute('fill'); if(a && a!=='none') return a;
+      const cs=getComputedStyle(el).fill; if(cs && cs!=='none') return cs;
+      return '#bdbdbd';
+    }
+    function setFill(el,hex){
+      if(!el) return;
+      el.setAttribute('fill',hex);
+      el.style.fill=hex;
+      const st=el.getAttribute('style');
+      if(st && /fill\s*:/.test(st)) el.setAttribute('style', st.replace(/fill\s*:[^;]+;?/,'').trim());
+    }
+    function toHex(color){
+      if(!color) return null;
+      if(color.startsWith('#')){
+        if(color.length===4){const r=color[1],g=color[2],b=color[3]; return ('#'+r+r+g+g+b+b).toLowerCase();}
+        return color.toLowerCase();
       }
-      const part = PARTS.find((p) => p.id === activeId);
-      if (!part) return;
-      part.shapes.forEach((sh) => setFill(sh, hex));
-      activeColorSwatch.style.background = hex;
-      updateSummary();
+      const m=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i); if(!m) return null;
+      const [r,g,b]=m.slice(1,4).map(Number);
+      return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('').toLowerCase();
+    }
+    function normLabel(s){ return s.replace(/[-_]/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\s+/g,' ').trim(); }
+
+    // ---------- Gruppenbasierte Teile ----------
+    function discoverParts(root){
+      PARTS=[];
+      let idx=1, auto=1;
+      const shapeSel='path,rect,circle,ellipse,polygon,polyline';
+
+      const bestLabel = (el) => {
+        const pick = (n) => n?.getAttribute?.('data-label')
+          || n?.getAttribute?.('inkscape:label')
+          || n?.getAttribute?.('label')
+          || null;
+        let cur=el;
+        while(cur && cur!==root){ const v=pick(cur); if(v) return v; cur=cur.parentNode; }
+        return null;
+      };
+
+      // 1) sinnvolle Gruppen: haben Label/ID und enthalten Shapes
+      const groups = $$('g', root).filter(g => {
+        const shapes = $$(shapeSel, g);
+        const lbl = bestLabel(g) || (g.id?normLabel(g.id):null);
+        return shapes.length>0 && lbl;
+      });
+
+      if(groups.length){
+        groups.forEach(g => {
+          if(!g.id) g.id='group'+(idx++);
+          const shapes = $$(shapeSel, g);
+          shapes.forEach(s => { if(!s.id) s.id='auto'+(auto++); });
+          const startHex = toHex(getFill(shapes[0])) || '#bdbdbd';
+          const label = bestLabel(g) || normLabel(g.id);
+          PARTS.push({id:g.id,label,def:startHex,nodes:shapes.map(s=>s.id)});
+          // Klick auf irgendein Child wählt die Gruppe
+          shapes.forEach(s => {
+            s.style.cursor='pointer';
+            s.setAttribute('tabindex','0');
+            s.addEventListener('click',()=>setActive(g.id));
+            s.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setActive(g.id);} });
+          });
+        });
+      } else {
+        // Fallback: einzelne Shapes
+        const shapes = $$(shapeSel, root);
+        shapes.forEach(el=>{
+          if(!el.id) el.id='path'+(idx++);
+          const label = bestLabel(el) || normLabel(el.id);
+          const startFill = getFill(el); setFill(el,startFill);
+          PARTS.push({id:el.id,label,def:toHex(startFill)||'#bdbdbd',nodes:[el.id]});
+          el.style.cursor='pointer'; el.setAttribute('tabindex','0');
+          el.addEventListener('click',()=>setActive(el.id));
+          el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setActive(el.id);} });
+        });
+      }
+
+      if(PARTS.length){ setActive(PARTS[0].id); updateSummary(); }
     }
 
-    // Reset active part to its default colour
-    $('#resetPart').addEventListener('click', () => {
-      if (!activeId) return;
-      const part = PARTS.find((p) => p.id === activeId);
-      if (!part) return;
-      part.shapes.forEach((sh) => setFill(sh, part.def));
-      activeColorSwatch.style.background = part.def;
+    function setActive(id){
+      // Auswahl entfernen
+      PARTS.forEach(p => p.nodes.forEach(nid => document.getElementById(nid)?.classList.remove('selected-outline')));
+      const p = PARTS.find(x=>x.id===id); if(!p) return;
+      activeId = id;
+      p.nodes.forEach(nid => document.getElementById(nid)?.classList.add('selected-outline'));
+
+      // Picker auf Gruppenfarbe (erste Node) setzen
+      const firstEl = document.getElementById(p.nodes[0]);
+      picker.value = toHex(getFill(firstEl)) || '#ffffff';
+      activePartBadge.textContent = 'Aktiv: ' + (p.label||id);
+
+      // Palette abhängig vom Gruppennamen
+      const isJoint = /^\s*Gelenk/i.test(p.label||'');
+      renderPalette(isJoint);
+    }
+
+    function setGroupFill(id, hex){
+      const p = PARTS.find(x=>x.id===id);
+      if(!p) return;
+      p.nodes.forEach(nid => setFill(document.getElementById(nid), hex));
+    }
+
+    function applyColor(hex){
+      if(!activeId) return;
+      setGroupFill(activeId, hex);
+      picker.value = hex;
+      updateSummary();
+    }
+    picker.addEventListener('input', e=>applyColor(e.target.value));
+
+    document.getElementById('resetPart').addEventListener('click',()=>{
+      if(!activeId) return;
+      const p=PARTS.find(p=>p.id===activeId);
+      setGroupFill(activeId, p.def);
       updateSummary();
     });
 
-    // Build summary for Etsy (show colour names)
-    function updateSummary() {
-      const lines = PARTS.map((p) => {
-        const hex = toHex(getFill(p.shapes[0]));
-        const name = COLOR_NAMES[hex] || hex;
+    // ---------- Zusammenfassung mit Farbnamen ----------
+    function updateSummary(){
+      const colorNames = {
+        "#111111":"Schwarz","#000000":"Schwarz",
+        "#ffffff":"Weiß",
+        "#888888":"Grau",
+        "#1abc9c":"Mintgrün",
+        "#f1c40f":"Zitronengelb",
+        "#f39c12":"Sonnenorange",
+        "#e74c3c":"Rot",
+        "#3498db":"Blau"
+      };
+      const lines = PARTS.map(p => {
+        const first = document.getElementById(p.nodes[0]);
+        const hex = toHex(getFill(first));
+        const name = colorNames[hex] || hex;
         return `${p.label}: ${name}`;
       });
       summary.value = lines.join('\n');
     }
 
-    // Load the figure.svg file from the same directory
-    async function loadFigure() {
-      try {
-        const res = await fetch('figure.svg?v=' + Date.now(), { cache: 'no-store' });
-        if (!res.ok) throw new Error(res.statusText);
-        const text = await res.text();
-        await inlineSVG(text);
-      } catch (e) {
-        // If loading fails, hide figure and show message
-        art.innerHTML = '';
-        $('#msg').style.display = 'block';
-        $('#msg').classList.add('danger');
-        $('#msg').innerHTML =
-          '⚠️ <code>figure.svg</code> konnte nicht geladen werden. Bitte stelle sicher, dass die Datei im Repo liegt.';
-      }
-    }
-
-    // Insert loaded SVG into the canvas and build parts
-    async function inlineSVG(svgText) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(svgText, 'image/svg+xml');
-      const srcSvg = doc.documentElement;
-      // Set viewBox
-      const vb = srcSvg.getAttribute('viewBox');
-      if (vb) canvas.setAttribute('viewBox', vb);
-      // Find the main vectors layer (Inkscape layer "02 - vectors (EDIT HERE)")
-      let vectors = srcSvg.querySelector('g[inkscape\\:label="02 - vectors (EDIT HERE)"]');
-      if (!vectors) vectors = srcSvg.querySelector('g#layer_vectors');
-      if (!vectors) vectors = srcSvg;
-      // Clear current art
-      art.innerHTML = '';
-      // Copy over all child nodes of the selected vectors group
-      Array.from(vectors.children).forEach((node) => {
-        art.appendChild(node.cloneNode(true));
+    // ---------- URL auf aktuelle Farben anwenden ----------
+    function applyFromQuery(){
+      const u=new URL(location.href); let changed=false;
+      PARTS.forEach(p=>{
+        const v=u.searchParams.get(p.id);
+        if(v){ setGroupFill(p.id, v); changed=true; }
       });
-      // Build parts from groups/shapes
-      discoverParts(art);
-      // Hide message if shown
-      $('#msg').style.display = 'none';
+      if(changed) updateSummary();
     }
 
-    // PNG download (full viewBox size, not scaled)
-    document.getElementById('downloadPng').addEventListener('click', async () => {
-      // Export current state to an SVG
-      const vb = canvas.viewBox.baseVal;
-      const w = vb.width || canvas.getBoundingClientRect().width;
-      const h = vb.height || canvas.getBoundingClientRect().height;
-      const ns = 'http://www.w3.org/2000/svg';
-      const exportSvg = document.createElementNS(ns, 'svg');
-      exportSvg.setAttribute('xmlns', ns);
-      exportSvg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${vb.height}`);
-      exportSvg.setAttribute('width', w);
-      exportSvg.setAttribute('height', h);
-      // Embed stroke styles inline
-      const style = document.createElementNS(ns, 'style');
-      style.textContent =
-        '#ART path, #ART rect, #ART circle, #ART ellipse, #ART polygon, #ART polyline { stroke: rgba(0,0,0,0.6); stroke-width: 0.6px; vector-effect: non-scaling-stroke; }';
-      exportSvg.appendChild(style);
-      // Add background ellipse
-      const bg = canvas.querySelector('ellipse');
-      if (bg) exportSvg.appendChild(bg.cloneNode(true));
-      // Add cloned art
-      exportSvg.appendChild(art.cloneNode(true));
-      // Serialize and render to canvas
-      const source = new XMLSerializer().serializeToString(exportSvg);
-      const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const img = new Image();
-      img.onload = () => {
-        const scale = 2;
-        const cav = document.createElement('canvas');
-        cav.width = w * scale;
-        cav.height = h * scale;
-        const ctx = cav.getContext('2d');
-        ctx.setTransform(scale, 0, 0, scale, 0, 0);
-        ctx.drawImage(img, 0, 0);
-        URL.revokeObjectURL(url);
-        const a = document.createElement('a');
-        a.download = 'figur-konfiguration.png';
-        a.href = cav.toDataURL('image/png');
-        a.click();
-      };
-      img.src = url;
-    });
-
-    // On page load, fetch and insert the SVG
-    async function applyDefaultColors() {
-      const defaults = {
-        "Hüfte": "#e74c3c",        // Rot
-        "Bauch": "#e74c3c",        // Rot
-        "Brust": "#1abc9c",        // Mintgrün
-        "Unterarm": "#3498db",     // Blau
-        "Schulter": "#1abc9c",     // Mintgrün
-        "Kopf": "#1abc9c",         // Mintgrün
-        "Gelenk": "#ffffff",       // Weiß
-        "Oberschenkel": "#e74c3c", // Rot
-        "Unterschenkel": "#3498db",// Blau
-        "Oberarm": "#e74c3c",      // Rot
-        "Knie": "#000000",         // Schwarz
-        "Fuß": "#3498db"           // Blau
-      };
-    
-      for (const part of PARTS) {
-        for (const [label, color] of Object.entries(defaults)) {
-          if (part.label.toLowerCase().startsWith(label.toLowerCase())) {
-            setGroupFill(part.id, color);
-          }
+    // ---------- Standardfarben (beim Laden setzen) ----------
+    const DEFAULTS = {
+      "Hüfte": "#e74c3c",        // Rot
+      "Bauch": "#e74c3c",        // Rot
+      "Brust": "#1abc9c",        // Mintgrün
+      "Unterarm": "#3498db",     // Blau
+      "Schulter": "#1abc9c",     // Mintgrün
+      "Kopf": "#1abc9c",         // Mintgrün
+      "Gelenk": "#ffffff",       // Weiß (matcht auch „Gelenke“)
+      "Oberschenkel": "#e74c3c", // Rot
+      "Unterschenkel": "#3498db",// Blau
+      "Oberarm": "#e74c3c",      // Rot
+      "Knie": "#000000",         // Schwarz
+      "Fuß": "#3498db"           // Blau
+    };
+    const norm = s => (s||"").toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss");
+    let defaultsApplied = false;
+    function applyDefaultColors(){
+      if (defaultsApplied) return;
+      PARTS.forEach(p => {
+        const L = norm(p.label);
+        for (const [key,color] of Object.entries(DEFAULTS)) {
+          if (L.startsWith(norm(key))) setGroupFill(p.id, color);
         }
-      }
+      });
+      defaultsApplied = true;
       updateSummary();
     }
-    
-    async function loadAndColor() {
-      await loadFigure();
-      applyDefaultColors();
+
+    // ---------- SVG laden & einsetzen ----------
+    async function inlineSVG(svgText){
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText,'image/svg+xml');
+      const srcSvg = doc.documentElement;
+      const vb = srcSvg.getAttribute('viewBox');
+      if (vb) canvas.setAttribute('viewBox', vb);
+
+      // nur direkte Kinder übernehmen (kompatibel zu deiner funktionierenden Version)
+      art.innerHTML='';
+      Array.from(srcSvg.children).forEach(node=> art.appendChild(document.importNode(node,true)) );
+
+      discoverParts(art);
+      applyFromQuery();     // ggf. URL-Parameter zuerst
+      applyDefaultColors(); // dann Defaults
     }
-    
-    loadAndColor();
+
+    async function loadFigure(){
+      const res=await fetch('figure.svg', {cache:'no-store'});
+      if(!res.ok) throw new Error(res.statusText);
+      const text=await res.text();
+      await inlineSVG(text);
+    }
+
+    // ---------- PNG Export ----------
+    document.getElementById('downloadPng').addEventListener('click', () => {
+      const serializer=new XMLSerializer(); let source=serializer.serializeToString(canvas);
+      if(!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)){ source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"'); }
+      const blob=new Blob([source],{type:'image/svg+xml;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const img=new Image();
+      img.onload=()=>{
+        const cav=document.createElement('canvas'); const scale=2;
+        cav.width=img.width*scale; cav.height=img.height*scale;
+        const ctx=cav.getContext('2d');
+        ctx.setTransform(scale,0,0,scale,0,0);
+        ctx.drawImage(img,0,0);
+        URL.revokeObjectURL(url);
+        const a=document.createElement('a');
+        a.download='figur-konfiguration.png';
+        a.href=cav.toDataURL('image/png');
+        a.click();
+      };
+      img.src=url;
+    });
+
+    // Start
+    loadFigure().catch(e=>console.warn('figure.svg konnte nicht geladen werden.', e));
   </script>
 </body>
 </html>
