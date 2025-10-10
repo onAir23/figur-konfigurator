@@ -63,13 +63,22 @@
       svg#canvas { max-width: 440px; }
     }
 
-    /* Mobile: Figur im Vordergrund, fast volle Breite, Tools darunter */
+    /* Mobile: Figur kompakter über Höhe steuern */
     @media (max-width: 767px) {
       main { display: block; padding: 14px; }
       .figure-wrap { min-height: 0; padding: 10px; }
-      svg#canvas { max-width: min(92vw, 440px); } /* deutlich größer */
+    
+      /* WICHTIG: Breite nicht mehr begrenzen, sondern Höhe! */
+      svg#canvas {
+        width: auto;          /* Breite freigeben */
+        max-width: none;      /* keine Breitenbegrenzung */
+        height: min(62vh, 340px);  /* Figur kleiner: nimmt max. 62% der Viewport-Höhe, gedeckelt auf 340px */
+        display: block;
+      }
+    
       .tools { margin-top: 14px; }
     }
+
 
     /* Dünner schwarzer Rahmen für alle SVG-Teile */
     #ART path, #ART rect, #ART circle, #ART ellipse, #ART polygon, #ART polyline {
