@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Actionfigur Farb‑Konfigurator</title>
+  <title>Actionfigur Farb-Konfigurator</title>
   <style>
     :root { --space: 14px; --radius: 14px; }
     * { box-sizing: border-box; }
@@ -62,11 +62,15 @@
       stroke-width: 0.6px;
       vector-effect: non-scaling-stroke;
     }
+
+    /* Mini-Toast */
+    .toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:10px 14px; border-radius:10px; opacity:0; pointer-events:none; transition:opacity .2s ease; font-size:.95rem; }
+    .toast.show{ opacity:1; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Actionfigur Farb‑Konfigurator</h1>
+    <h1>Actionfigur Farb-Konfigurator</h1>
     <p>1) Teil anklicken • 2) Farbe wählen • 3) „Deine Auswahl“ in Etsy einfügen</p>
   </header>
 
@@ -97,6 +101,7 @@
       <div class="section">
         <div class="row">
           <button id="downloadPng">PNG herunterladen</button>
+          <button id="toEtsy">Zu Etsy & Profil mitnehmen</button>
         </div>
       </div>
 
@@ -111,13 +116,19 @@
     <p>© 2025 DEIN SHOPNAME – Kauf & Zahlung erfolgen auf Etsy.</p>
   </footer>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
     const $ = (s, c=document)=>c.querySelector(s);
     const $$ = (s, c=document)=>Array.from(c.querySelectorAll(s));
+    const toast = (m)=>{ const el=$('#toast'); el.textContent=m; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 1200); };
 
     const picker=$('#picker'), summary=$('#summary'), activePartBadge=$('#activePartBadge');
     const swatches=$('#swatches');
     const canvas=$('#canvas'); const art=$('#ART'); let PARTS=[]; let activeId=null;
+
+    // Etsy Listing URL
+    const ETSY_URL = "https://www.etsy.com/de/listing/1725375945/dummy13-actionfigur-20cm-bewegliche";
 
     // Paletten
     const PALETTE_JOINTS = ['#111111','#ffffff','#888888','#e74c3c','#3498db']; // Gelenke
@@ -311,6 +322,85 @@
       updateSummary();
     }
 
+    // ---------- PNG Export (robust, viewBox-basiert) ----------
+    function buildExportSvg(){
+      const vb = canvas.viewBox.baseVal;
+      const w = vb.width, h = vb.height;
+      const ns = 'http://www.w3.org/2000/svg';
+      const exp = document.createElementNS(ns, 'svg');
+      exp.setAttribute('xmlns', ns);
+      exp.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${vb.height}`);
+      exp.setAttribute('width',  w);
+      exp.setAttribute('height', h);
+      const style = document.createElementNS(ns, 'style');
+      style.textContent = `
+        #ART path, #ART rect, #ART circle, #ART ellipse, #ART polygon, #ART polyline {
+          stroke: rgba(0,0,0,0.6);
+          stroke-width: 0.6px;
+          vector-effect: non-scaling-stroke;
+        }
+      `;
+      exp.appendChild(style);
+      const bg = canvas.querySelector('ellipse')?.cloneNode(true);
+      if (bg) exp.appendChild(bg);
+      exp.appendChild(canvas.querySelector('#ART').cloneNode(true));
+      return exp;
+    }
+
+    function svgToPngDataUrl(expSvg, scale=2){
+      return new Promise(resolve => {
+        const src = new XMLSerializer().serializeToString(expSvg);
+        const blob = new Blob([src], {type:'image/svg+xml;charset=utf-8'});
+        const url  = URL.createObjectURL(blob);
+        const img  = new Image();
+        img.onload = () => {
+          const vb = canvas.viewBox.baseVal;
+          const cav = document.createElement('canvas');
+          cav.width  = Math.ceil(vb.width * scale);
+          cav.height = Math.ceil(vb.height * scale);
+          const ctx = cav.getContext('2d');
+          ctx.setTransform(scale,0,0,scale,0,0);
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          resolve(cav.toDataURL('image/png'));
+        };
+        img.src = url;
+      });
+    }
+
+    async function exportPNG({download=true, filename='figur-konfiguration.png', scale=2} = {}){
+      const exp = buildExportSvg();
+      const dataUrl = await svgToPngDataUrl(exp, scale);
+      if (download){
+        const a = document.createElement('a');
+        a.download = filename;
+        a.href = dataUrl;
+        a.click();
+      }
+      return dataUrl;
+    }
+
+    async function copyTextToClipboard(text){
+      try { await navigator.clipboard.writeText(text); return true; }
+      catch {
+        const ta=document.createElement('textarea'); ta.value=text;
+        document.body.appendChild(ta); ta.select();
+        const ok=document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      }
+    }
+    async function copyImageDataUrlToClipboard(dataUrl){
+      if (!('clipboard' in navigator) || !('write' in navigator.clipboard)) return false;
+      try {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const item = new ClipboardItem({ 'image/png': blob });
+        await navigator.clipboard.write([item]);
+        return true;
+      } catch { return false; }
+    }
+
     // ---------- SVG laden & einsetzen ----------
     async function inlineSVG(svgText){
       const parser = new DOMParser();
@@ -335,26 +425,30 @@
       await inlineSVG(text);
     }
 
-    // ---------- PNG Export ----------
-    document.getElementById('downloadPng').addEventListener('click', () => {
-      const serializer=new XMLSerializer(); let source=serializer.serializeToString(canvas);
-      if(!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)){ source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"'); }
-      const blob=new Blob([source],{type:'image/svg+xml;charset=utf-8'});
-      const url=URL.createObjectURL(blob);
-      const img=new Image();
-      img.onload=()=>{
-        const cav=document.createElement('canvas'); const scale=2;
-        cav.width=img.width*scale; cav.height=img.height*scale;
-        const ctx=cav.getContext('2d');
-        ctx.setTransform(scale,0,0,scale,0,0);
-        ctx.drawImage(img,0,0);
-        URL.revokeObjectURL(url);
-        const a=document.createElement('a');
-        a.download='figur-konfiguration.png';
-        a.href=cav.toDataURL('image/png');
+    // ---------- Buttons ----------
+    document.getElementById('downloadPng').addEventListener('click', async () => {
+      await exportPNG({download:true});
+      toast('PNG gespeichert');
+    });
+
+    document.getElementById('toEtsy').addEventListener('click', async () => {
+      // 1) Text kopieren
+      await copyTextToClipboard(summary.value);
+
+      // 2) PNG erzeugen + versuchen in Zwischenablage zu legen; Fallback: Download
+      const dataUrl = await exportPNG({download:false});
+      const ok = await copyImageDataUrlToClipboard(dataUrl);
+      if (!ok) {
+        const a = document.createElement('a');
+        a.download = 'figur-konfiguration.png';
+        a.href = dataUrl;
         a.click();
-      };
-      img.src=url;
+      }
+
+      // 3) Etsy öffnen
+      window.open(ETSY_URL, '_blank', 'noopener');
+
+      toast('Profil kopiert • Bild bereit • Etsy geöffnet');
     });
 
     // Start
