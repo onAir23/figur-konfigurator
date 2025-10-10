@@ -490,7 +490,38 @@
     });
 
     // On page load, fetch and insert the SVG
-    loadFigure();
+    async function applyDefaultColors() {
+      const defaults = {
+        "Hüfte": "#e74c3c",        // Rot
+        "Bauch": "#e74c3c",        // Rot
+        "Brust": "#1abc9c",        // Mintgrün
+        "Unterarm": "#3498db",     // Blau
+        "Schulter": "#1abc9c",     // Mintgrün
+        "Kopf": "#1abc9c",         // Mintgrün
+        "Gelenk": "#ffffff",       // Weiß
+        "Oberschenkel": "#e74c3c", // Rot
+        "Unterschenkel": "#3498db",// Blau
+        "Oberarm": "#e74c3c",      // Rot
+        "Knie": "#000000",         // Schwarz
+        "Fuß": "#3498db"           // Blau
+      };
+    
+      for (const part of PARTS) {
+        for (const [label, color] of Object.entries(defaults)) {
+          if (part.label.toLowerCase().startsWith(label.toLowerCase())) {
+            setGroupFill(part.id, color);
+          }
+        }
+      }
+      updateSummary();
+    }
+    
+    async function loadAndColor() {
+      await loadFigure();
+      applyDefaultColors();
+    }
+    
+    loadAndColor();
   </script>
 </body>
 </html>
